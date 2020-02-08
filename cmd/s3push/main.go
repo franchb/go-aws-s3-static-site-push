@@ -65,7 +65,7 @@ type config struct {
 func getConfiguration() *config {
 	configuration := config{
 		region:         "us-east-1",
-		bucket:         "rusin.dev",
+		bucket:         "irusin.dev",
 		localDirectory: "/home/ubuntu/projects/github.com/franchb/"}
 	return &configuration
 }
