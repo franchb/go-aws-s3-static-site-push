@@ -33,7 +33,8 @@ func GetS3Configuration() S3Config {
 	return configuration
 }
 
-func NewS3SessionFromConfig(config *S3Config) (*session.Session, error) {
+// NewS3SessionFromConfig returns the AWS session with configuration.
+func NewS3SessionFromConfig(config S3Config) (*session.Session, error) {
 	return session.NewSession(
 		&aws.Config{
 			Region:      config.Region,
@@ -41,3 +42,4 @@ func NewS3SessionFromConfig(config *S3Config) (*session.Session, error) {
 			S3UseAccelerate: config.S3UseAccelerate,
 		})
 }
+

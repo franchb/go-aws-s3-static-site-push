@@ -1,0 +1,47 @@
+# Copyright 2016 The Kubernetes Authors.
+# Edits by Ilya Rusin (@franchb)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Don't allow users to call this directly.  There are too many variables this
+# assumes to inherit from the main Makefile.  This is not a user-facing file.
+ifeq ($(CALLED_FROM_MAIN_MAKEFILE),)
+    $(error Please use the main Makefile, e.g. `make generated_files`)
+endif
+
+
+# Don't allow an implicit 'all' rule.  This is not a user-facing file.
+ifeq ($(MAKECMDGOALS),)
+    $(error This Makefile requires an explicit rule to be specified)
+endif
+
+ifeq ($(DBG_MAKEFILE),1)
+    $(warning ***** starting Makefile.generated_files for goal(s) "$(MAKECMDGOALS)")
+    $(warning ***** $(shell date))
+endif
+
+
+# It's necessary to set this because some environments don't link sh -> bash.
+SHELL := /bin/bash
+
+# This rule collects all the generated file sets into a single rule.  Other
+# rules should depend on this to ensure generated files are rebuilt.
+.PHONY: generated_files
+generated_files: gen_enum gen_deepcopy gen_defaulter gen_conversion gen_openapi gen_bindata
+
+
+
+#
+# Code generation logic.
+#
+# TODO:  implement me

@@ -3,6 +3,7 @@ package push
 import (
 
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/franchb/go-aws-s3-static-site-push/actions/aws/connect"
 
 )
@@ -24,6 +25,7 @@ const (
 
 type S3Push struct {
 	session *session.Session
+	s3 *s3.S3
 	config config
 }
 
@@ -47,7 +49,7 @@ func (a *S3Push) GetEnvironment() error {
 
 
 func (a *S3Push) Check() error {
-	s, err := connect.NewS3SessionFromConfig(&a.config.S3Config)
+	s, err := connect.NewS3SessionFromConfig(a.config.S3Config)
 	if err != nil {
 		return err
 	}
@@ -56,6 +58,7 @@ func (a *S3Push) Check() error {
 }
 
 func (a *S3Push) Connect() error {
+	a.s3 = s3.New(a.session)
 	return nil
 }
 
