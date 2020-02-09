@@ -3,9 +3,8 @@ package types
 type Handler interface {
 	Name() string
 	Help() string
-	GetEnvironment() error
-	Check() error
-	Connect() error
+	Open() error
 	Do() error
+	Close() error
 }
 
