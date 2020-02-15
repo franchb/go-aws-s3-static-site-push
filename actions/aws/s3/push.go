@@ -7,7 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-	aws2 "github.com/franchb/go-aws-s3-static-site-push/actions/aws"
+	awsActions "github.com/franchb/go-aws-s3-static-site-push/actions/aws"
 	"github.com/franchb/go-aws-s3-static-site-push/pkg/filechecksum"
 	"github.com/rs/zerolog/log"
 	"net/http"
@@ -40,7 +40,7 @@ func NewS3PushAction() *S3Push {
 }
 
 type config struct {
-	aws2.S3Config
+	awsActions.S3Config
 	sourceDir string
 }
 
@@ -93,12 +93,12 @@ func (a *S3Push) Close() error {
 }
 
 func (a *S3Push) getEnvironment() error {
-	a.config.S3Config = aws2.GetS3Configuration()
+	a.config.S3Config = awsActions.GetS3Configuration()
 	return nil
 }
 
 func (a *S3Push) check() error {
-	s, err := aws2.NewS3SessionFromConfig(a.config.S3Config)
+	s, err := awsActions.NewS3SessionFromConfig(a.config.S3Config)
 	if err != nil {
 		return err
 	}
