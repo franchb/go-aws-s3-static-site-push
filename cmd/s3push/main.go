@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/franchb/cli"
-	"github.com/franchb/go-aws-s3-static-site-push/actions/aws/s3/push"
+	"github.com/franchb/go-aws-s3-static-site-push/actions/aws/s3"
 	"github.com/franchb/go-aws-s3-static-site-push/log"
 	"os"
 )
@@ -23,7 +23,7 @@ func main() {
 		argv := ctx.Argv().(*rootT)
 		logLevel, _ := log.ParseLevel(argv.LogLevel)
 		log.InitLogs(logLevel)
-		action := push.NewS3PushAction()
+		action := s3.NewS3PushAction()
 		if err := action.Open(); err != nil {
 			return fmt.Errorf("failed to open %s handler\nError=%s",
 				ctx.Color().Cyan(action.Name()), ctx.Color().RedBg(err))

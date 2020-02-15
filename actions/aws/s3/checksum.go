@@ -5,13 +5,13 @@ import (
 	"strings"
 )
 
-// GetS3ObjectsChecksumsMap constructs and returns a map of keys (relative filenames)
+// getS3ObjectsChecksumsMap constructs and returns a map of keys (relative filenames)
 // to checksums for the given bucket-configured S3 service.
 // It is assumed  that the objects have not been multipart-uploaded,
 // which will change the checksum.
 // TODO: @franchb - We’re concerned with new or updated files –
 //  any deletes are ignored and we can handle separately.
-func GetS3ObjectsChecksumsMap(s3Service *s3.S3, bucket string) (map[string]string, error) {
+func getS3ObjectsChecksumsMap(s3Service *s3.S3, bucket string) (map[string]string, error) {
 	objects, err := s3Service.ListObjects(&s3.ListObjectsInput{Bucket: &bucket})
 	if err != nil {
 		return nil, err

@@ -10,11 +10,11 @@ import (
 	"strings"
 )
 
-// GetListOfChangedFiles walks the file tree rooted at the specified directory, compares
+// GetListOfChangedFilesChan walks the file tree rooted at the specified directory, compares
 // MD5 checksums and returns a list of absolute paths of files which checksum
 // is different of absent with the checksums map.
-func GetListOfChangedFiles(localPath string, checksums map[string]string) []string {
-	collector := make ([]string, 128)
+func GetListOfChangedFilesChan(localPath string, checksums map[string]string) chan [2]string {
+	collector := make(chan [2]string)
 
 	opts := godirwalk.Options{
 		Callback:            withFileHandler(localPath, checksums, collector),
@@ -33,7 +33,7 @@ func GetListOfChangedFiles(localPath string, checksums map[string]string) []stri
 
 // withFileHandler returns a godirwalk.Walk file handler
 func withFileHandler(localPath string, checksums map[string]string,
-	collector []string) func(osPathname string, de *godirwalk.Dirent) error {
+	collector chan [2]string) func(osPathname string, de *godirwalk.Dirent) error {
 
 	return func(osPathname string, de *godirwalk.Dirent) error {
 		if !de.IsDir() {
@@ -41,11 +41,13 @@ func withFileHandler(localPath string, checksums map[string]string,
 			// i. e.  extract `/a/b/c/` from `/a/b/c/d/e.txt`
 			relativeFile := strings.Replace(osPathname, localPath, "", 1)
 
-			checksumRemote, _ := checksums[relativeFile]
-			// TODO: benchmark with go isFileChecksumDifferFromRemote(...)
-			if isFileChecksumDifferFromRemote(osPathname, checksumRemote) {
-				// file walk is not concurrent, so no locks are needed
-				collector = append(collector, osPathname)
+			remote, _ := checksums[relativeFile]
+			local, err := md5File(relativeFile)
+			if err != nil {
+				return fmt.Errorf("failed to extract MD5 sum from local file: %w", err)
+			}
+			if remote == "" || local != remote {
+				collector <- [2]string{osPathname, local}
 			}
 		}
 		return nil
@@ -64,24 +66,6 @@ func withErrorsCallback() func(f string, err error) godirwalk.ErrorAction {
 
 		return godirwalk.Halt
 	}
-}
-
-// isFileChecksumDifferFromRemote checks file MD5 checksum and returns
-// true if checksums are the same, returns false if checksums are different.
-// Returns true if the remote checksum is empty (so file not exists at remote).
-func isFileChecksumDifferFromRemote(pathToFile string, checksumRemote string) bool {
-	if checksumRemote == "" {
-		return true
-	}
-	sumString, err := md5File(pathToFile)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Str("filename", pathToFile).
-			Msg("can't open local file, will skip it")
-		return false
-	}
-	return sumString != checksumRemote
 }
 
 // md5File opens file and calculates MD5 hash for it
